@@ -5,22 +5,40 @@ using RepositoryContracts;
 using ServiceContracts;
 using Services;
 using StocksApp.Options;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog();
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 builder.Services.AddDbContext<StockMarketDbContext>((options) =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")!);
 });
+
 builder.Services.Configure<TradingOptions>(builder.Configuration.GetSection("TradingOptions"));
 builder.Services.AddScoped<IFinnhubRepository, FinnhubRepository>();
 builder.Services.AddScoped<IStocksRepository, StocksRepository>();
 builder.Services.AddScoped<IStocksService, StocksService>();
 builder.Services.AddScoped<IFinnhubService, FinnhubService>();
 
+
 var app = builder.Build();
-Test
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .ReadFrom.Services(app.Services)
+    .WriteTo.Console()
+    .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day, rollOnFileSizeLimit: true)
+    .CreateLogger();
+
+if (builder.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
 if (!builder.Environment.IsEnvironment("Test"))
     Rotativa.AspNetCore.RotativaConfiguration.Setup("wwwroot", wkhtmltopdfRelativePath: "rotativa");
 

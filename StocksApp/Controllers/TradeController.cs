@@ -15,13 +15,15 @@ namespace StocksApp.Controllers
         private readonly IConfiguration _configuration;
         private readonly IStocksService _stocksService;
         private readonly TradingOptions _tradingOptions;
+        private readonly ILogger<TradeController> _logger;
 
-        public TradeController(IFinnhubService myService, IConfiguration configuration, IStocksService stocksService, IOptions<TradingOptions> tradingOptions)
+        public TradeController(IFinnhubService myService, IConfiguration configuration, IStocksService stocksService, IOptions<TradingOptions> tradingOptions, ILogger<TradeController> logger)
         {
             _finnhubService = myService;
             _configuration = configuration;
             _stocksService = stocksService;
             _tradingOptions = tradingOptions.Value;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -29,6 +31,8 @@ namespace StocksApp.Controllers
         [Route("~/[controller]/{stockSymbol}")]
         public async Task<IActionResult> Index(string stockSymbol)
         {
+            _logger.LogInformation($"Loading Trade/Index with stock symbol: {stockSymbol}");
+
             if (string.IsNullOrEmpty(stockSymbol))
             {
                 stockSymbol = "MSFT";

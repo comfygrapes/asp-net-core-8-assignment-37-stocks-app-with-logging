@@ -1,4 +1,5 @@
 ﻿using Entities;
+using Microsoft.Extensions.Logging;
 using RepositoryContracts;
 using ServiceContracts;
 using ServiceContracts.DTOs;
@@ -9,10 +10,12 @@ namespace Services
     public class StocksService : IStocksService
     {
         private readonly IStocksRepository _stocksRepository;
+        private readonly ILogger<StocksService> _logger;
 
-        public StocksService(IStocksRepository stocksRepository)
+        public StocksService(IStocksRepository stocksRepository, ILogger<StocksService> logger)
         {
             _stocksRepository = stocksRepository;
+            _logger = logger;
         }
 
         public async Task<BuyOrderResponse> CreateBuyOrder(BuyOrderRequest? buyOrderRequest)
@@ -24,6 +27,8 @@ namespace Services
             buyOrder.BuyOrderId = Guid.NewGuid();
 
             var buyOrderFromRepository = await _stocksRepository.CreateBuyOrder(buyOrder);
+
+            _logger.LogInformation("Buy order created.");
 
             return buyOrder.ToBuyOrderResponse();
         }
@@ -37,6 +42,8 @@ namespace Services
             sellOrder.SellOrderId = Guid.NewGuid();
 
             var sellOrderFromRepository = await _stocksRepository.CreateSellOrder(sellOrder);
+
+            _logger.LogInformation("Sell order created.");
 
             return sellOrder.ToSellOrderResponse();
         }
