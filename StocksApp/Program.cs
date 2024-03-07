@@ -20,7 +20,7 @@ builder.Services.AddScoped<IStocksService, StocksService>();
 builder.Services.AddScoped<IFinnhubService, FinnhubService>();
 
 var app = builder.Build();
-
+Test
 if (!builder.Environment.IsEnvironment("Test"))
     Rotativa.AspNetCore.RotativaConfiguration.Setup("wwwroot", wkhtmltopdfRelativePath: "rotativa");
 
